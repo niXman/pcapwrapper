@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.2.2)
 option(GTEST_FOUND "Make build for gtest" OFF)
 
 project(pcapwrapper CXX)
-set(CMAKE_BUILD_TYPE Release)
+
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wduplicated-cond -Wlogical-op -Wnull-dereference -Wuseless-cast -Wshadow")
 if (GTEST_FOUND)

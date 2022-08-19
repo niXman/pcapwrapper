@@ -1,6 +1,7 @@
 #include "../../../include/network/builders/dnsbuilder.h"
 
 #include "../../../include/helpers/helper.h"
+#include "../../../include/helpers/strutils.h"
 #include <array>
 #include <cstring>
 #include <netinet/in.h>
@@ -8,14 +9,15 @@
 namespace PCAP {
 namespace PCAPBuilder {
 
-bool setIp(PCAP::uchar *ip, const std::string &ip_value, int base) {
-    std::array<PCAP::uchar, ip_addr_len> array;
-    bool successful = PCAP::PCAPHelper::split_string<PCAP::uchar, ip_addr_len>(
-        ip_value, '.', array, base);
-    if (successful) {
-        memcpy(ip, array.data(), ip_addr_len);
+bool setIp(PCAP::uchar *ip, const std::string &ip_value) {
+    auto pair = PCAP::PCAPStrUtils::parse_ip_addr(
+         ip_value.data()
+        ,ip_value.length()
+    );
+    if ( pair.first ) {
+        memcpy(ip, pair.second.data(), ip_addr_len);
     }
-    return successful;
+    return pair.first;
 }
 
 // bool setMac(PCAP::uchar *addr, const std::string &ethernet_value, int base) {
@@ -56,7 +58,7 @@ PCAP::sniffdns_answer create_dns_answer(const std::string &spoof_ip) {
     answer.m_time_to_live[2] = 0x00;
     answer.m_time_to_live[3] = 0x18;
     answer.data_length = htons(0x0004);
-    setIp(answer.m_address, spoof_ip, 10);
+    setIp(answer.m_address, spoof_ip);
     return answer;
 }
 

@@ -71,8 +71,7 @@ void set_tcp_checksum(sniffip *ip, snifftcp *tcp, uchar *data) {
 void set_udp_checksum(sniffip *ip, sniffudp *udp, uchar *data) {
     udp->m_checksum = 0x0000;
 
-    pseudo_header pseudo_h;
-    memset(&pseudo_h, '\0', sizeof(pseudo_h));
+    pseudo_header pseudo_h{};
     memcpy(&pseudo_h.s_addr, &ip->m_ip_src, ip_addr_len);
     memcpy(&pseudo_h.d_addr, &ip->m_ip_dst, ip_addr_len);
     pseudo_h.protocol = ip->m_ip_p;
@@ -90,25 +89,20 @@ void set_udp_checksum(sniffip *ip, sniffudp *udp, uchar *data) {
         checksum(&packet, ntohs(udp->m_length) + sizeof(pseudo_h));
 }
 
-bool setIp(PCAP::uchar *ip, const std::string &ip_value, int base) {
-    std::array<PCAP::uchar, ip_addr_len> array;
-    bool successful = PCAP::PCAPHelper::split_string<PCAP::uchar, ip_addr_len>(
-        ip_value, '.', array, base);
-    if (successful) {
-        memcpy(ip, array.data(), ip_addr_len);
+bool setIp(PCAP::uchar *ip, const char *str, std::size_t len) {
+    auto pair = PCAP::PCAPStrUtils::parse_ip_addr(str, len);
+    if ( pair.first ) {
+        std::memcpy(ip, pair.second.data(), ip_addr_len);
     }
-    return successful;
+    return pair.first;
 }
 
-bool setMac(PCAP::uchar *addr, const std::string &ethernet_value, int base) {
-    std::array<PCAP::uchar, ethernet_addr_len> array;
-    bool sucessful =
-        PCAP::PCAPHelper::split_string<PCAP::uchar, ethernet_addr_len>(
-            ethernet_value, ':', array, base);
-    if (sucessful) {
-        memcpy(addr, array.data(), ethernet_addr_len);
+bool setMac(PCAP::uchar *addr, const char *str, std::size_t len) {
+    auto pair = PCAP::PCAPStrUtils::parse_mac_addr(str, len);
+    if ( pair.first ) {
+        std::memcpy(addr, pair.second.data(), ethernet_addr_len);
     }
-    return sucessful;
+    return pair.first;
 }
 
 pcap_if_t *get_all_devs() {
@@ -122,9 +116,9 @@ pcap_if_t *get_all_devs() {
 
 PCAP::IpAddress get_ip(const std::string &interface) {
     pcap_if_t *all_devs = get_all_devs();
-    for (pcap_if_t *dev = all_devs; dev != NULL; dev = dev->next) {
+    for (pcap_if_t *dev = all_devs; dev != nullptr; dev = dev->next) {
         if (dev->name == interface) {
-            for (pcap_addr_t *a = dev->addresses; a != NULL; a = a->next) {
+            for (pcap_addr_t *a = dev->addresses; a != nullptr; a = a->next) {
                 if (a->addr->sa_family == AF_INET) {
                     std::string result =
                         inet_ntoa(((struct sockaddr_in *)a->addr)->sin_addr);
@@ -140,9 +134,9 @@ PCAP::IpAddress get_ip(const std::string &interface) {
 
 PCAP::IpAddress get_mask(const std::string &interface) {
     pcap_if_t *all_devs = get_all_devs();
-    for (pcap_if_t *dev = all_devs; dev != NULL; dev = dev->next) {
+    for (pcap_if_t *dev = all_devs; dev != nullptr; dev = dev->next) {
         if (dev->name == interface) {
-            for (pcap_addr_t *a = dev->addresses; a != NULL; a = a->next) {
+            for (pcap_addr_t *a = dev->addresses; a != nullptr; a = a->next) {
                 if (a->netmask && a->netmask->sa_family == AF_INET) {
                     std::string result =
                         inet_ntoa(((struct sockaddr_in *)a->netmask)->sin_addr);

@@ -14,8 +14,8 @@ class InterfaceTest : public PCAP::InterfacePolicy {
         : InterfacePolicy(""), m_processor{processor} {}
 
   protected:
-    const PCAP::uchar *read_package_impl(pcap_pkthdr &header) {}
-    bool set_filter_impl(const std::string &filter) {}
+    const PCAP::uchar *read_package_impl(pcap_pkthdr &header) { return nullptr; }
+    bool set_filter_impl(const std::string &filter) { return false; }
 
     int write_impl(const PCAP::uchar *package, int len) {
         pcap_pkthdr header;

@@ -1,7 +1,7 @@
 #ifndef PCAPCONSTANTS_H
 #define PCAPCONSTANTS_H
 
-#include <cstddef>
+#include <cstdint>
 
 /* default snap length (maximum bytes per package to capture) */
 constexpr auto snap_len = std::size_t{1518};

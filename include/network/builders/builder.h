@@ -33,12 +33,30 @@ class Option {
     Option(Option &&rhs) noexcept = default;
     Option &operator=(Option &&rhs) noexcept = default;
 
-    friend void set_ethernet(auto &package, std::map<Keys, Option> &options);
-    friend void set_ip(auto &package, std::map<Keys, Option> &options);
-    friend void set_udp(auto &package, std::map<Keys, Option> &options);
-    friend void set_icmp(auto &package, std::map<Keys, Option> &options);
-    friend void set_tcp(auto &package, std::map<Keys, Option> &options);
-    friend void set_arp(auto &package, std::map<Keys, Option> &options);
+    const MacAddress& get_mac() const { return m_value_mac; }
+    const IpAddress& get_ip() const { return m_value_ip; }
+    const uchar& get_char() const { return m_value_char; }
+    const ushort& get_short() const { return m_value_short; }
+    const uint& get_int() const { return m_value_int; }
+
+    using keyval_map = std::map<Keys, Option>;
+
+    friend void set_ethernet(ARPPackage &package, const keyval_map &options);
+    friend void set_ethernet(UDPPackage &package, const keyval_map &options);
+    friend void set_ethernet(ICMPPackage &package, const keyval_map &options);
+    friend void set_ethernet(TCPPackage &package, const keyval_map &options);
+
+    friend void set_ip(UDPPackage &package, const keyval_map &options);
+    friend void set_ip(TCPPackage &package, const keyval_map &options);
+    friend void set_ip(ICMPPackage &package, const keyval_map &options);
+
+    friend void set_udp(UDPPackage &package, const keyval_map &options);
+
+    friend void set_icmp(ICMPPackage &package, const keyval_map &options);
+
+    friend void set_tcp(TCPPackage &package, const keyval_map &options);
+
+    friend void set_arp(ARPPackage &package, const keyval_map &options);
 
   private:
     union {
@@ -50,10 +68,11 @@ class Option {
     };
 };
 
-ARPPackage make_arp(std::map<Keys, Option> options);
-UDPPackage make_udp(std::map<Keys, Option> options);
-ICMPPackage make_icmp(std::map<Keys, Option> options);
-TCPPackage make_tcp(std::map<Keys, Option> options);
+ARPPackage make_arp(const Option::keyval_map &options);
+UDPPackage make_udp(const Option::keyval_map &options);
+ICMPPackage make_icmp(const Option::keyval_map &options);
+TCPPackage make_tcp(const Option::keyval_map &options);
+
 }
 }
 
